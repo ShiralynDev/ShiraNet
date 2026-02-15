@@ -4,5 +4,5 @@
 
 struct Buffer {
     unsigned int size;
-    std::string data;
+    std::string data{ 0 };
 };

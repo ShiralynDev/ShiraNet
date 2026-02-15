@@ -35,8 +35,36 @@ ShiraNet::Sockets::Socket::Socket(int SocketID, int Domain, int Type, int Protoc
     Logger::info("Socket class created from existing socket");
 }
 
+ShiraNet::Sockets::Socket::Socket(Socket&& other) noexcept {
+    socketID = other.socketID;
+    domain = other.domain;
+    type = other.type;
+    protocol = other.protocol;
+    socketAddress = other.socketAddress;
+
+    other.socketID = -1;
+}
+
+ShiraNet::Sockets::Socket& ShiraNet::Sockets::Socket::operator=(Socket&& other) noexcept {
+    if (this != &other) {
+        if (socketID >= 0) {
+            close(socketID);
+        }
+        socketID = other.socketID;
+        domain = other.domain;
+        type = other.type;
+        protocol = other.protocol;
+        socketAddress = other.socketAddress;
+
+        other.socketID = -1;
+    }
+    return *this;
+}
+
 ShiraNet::Sockets::Socket::~Socket() {
-    close(socketID);
+    if (socketID >= 0) {
+        close(socketID);
+    }
 }
 
 void ShiraNet::Sockets::Socket::addStringIPToAddressInfo(char* ServerIP) {

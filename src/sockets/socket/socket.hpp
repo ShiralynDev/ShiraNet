@@ -34,7 +34,10 @@ namespace ShiraNet::Sockets {
         public:
             Socket(int Domain, int Type, int Protocol);
             Socket(int SocketID, int Domain, int Type, int Protocol, sockaddr_in SocketAddress);
+            Socket(Socket&& other) noexcept;
+            Socket& operator=(Socket&& other) noexcept;
             ~Socket();
+            
             void send(Buffer& buffer);
             Buffer receive(unsigned int AmountOfBytesToRead);
             std::string getAddressInfoToStringIP();
