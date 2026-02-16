@@ -16,7 +16,7 @@ ShiraNet::Sockets::TcpSocket::TcpSocket(int SocketID, int Domain, int Type, int 
 }
 
 void ShiraNet::Sockets::TcpSocket::connect(char* ServerIP, in_port_t ServerPort) {
-    addStringIPToAddressInfo(ServerIP);
+    addStringIPToAddressInfo(ServerIP, std::to_string(ServerPort));
     socketAddress.sin_port = htons(ServerPort);
     socketAddress.sin_family = domain;
 

@@ -29,7 +29,7 @@ namespace ShiraNet::Sockets {
             int protocol = 0;
             sockaddr_in socketAddress{0};
 
-            void addStringIPToAddressInfo(char* ServerIP);
+            void addStringIPToAddressInfo(char* ServerIP, std::string PortString);
 
         public:
             Socket(int Domain, int Type, int Protocol);
