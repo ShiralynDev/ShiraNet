@@ -109,7 +109,11 @@ Buffer ShiraNet::Sockets::Socket::receive(unsigned int AmountOfBytesToRead) {
         }
         totalBytesReceived += bytesReceived;
     }
-    receiveBuffer.data.resize(totalBytesReceived); // hopefully this is the same but whatever
+    
+    auto pos = receiveBuffer.data.find('\0');
+    if (pos != std::string::npos) {
+        receiveBuffer.data.resize(pos);
+    }
     return receiveBuffer;
 }
 
