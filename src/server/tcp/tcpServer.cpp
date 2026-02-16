@@ -1,10 +1,10 @@
 #include "tcpServer.hpp"
 
 
-ShiraNet::Servers::TcpServer::TcpServer(int domain, int port, int maxClients) {
-    serverSocket = new ShiraNet::Sockets::TcpSocket(domain);
-    serverSocket->bind(port);
-    serverSocket->listen(maxClients);
+ShiraNet::Servers::TcpServer::TcpServer(int Domain, int Port, int MaxClients) {
+    serverSocket = new ShiraNet::Sockets::TcpSocket(Domain);
+    serverSocket->bind(Port);
+    serverSocket->listen(MaxClients);
 }
 
 ShiraNet::Servers::TcpServer::~TcpServer() {

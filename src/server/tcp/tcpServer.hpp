@@ -13,7 +13,7 @@ namespace ShiraNet::Servers {
 
         public:
             // creates the servers socket, binds it and listens
-            TcpServer(int domain, int port, int maxClients);
+            TcpServer(int Domain, int Port, int MaxClients);
             ~TcpServer();
 
             std::vector<ShiraNet::Sockets::TcpSocket> clientSockets {};
