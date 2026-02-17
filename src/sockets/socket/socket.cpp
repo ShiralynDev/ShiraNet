@@ -72,18 +72,8 @@ ShiraNet::Sockets::Socket::~Socket() {
 void ShiraNet::Sockets::Socket::addStringIPToAddressInfo(char* ServerIP, std::string PortString) {
     int inetptonResult = inet_pton(domain, ServerIP, &socketAddress.sin_addr.s_addr);
     if (inetptonResult == 0) {
-        struct addrinfo addressCriteria{ 0 };
-        addressCriteria.ai_family = AF_UNSPEC;
-        addressCriteria.ai_socktype = type;
-        addressCriteria.ai_protocol = protocol;
-        struct addrinfo *addressList{ 0 }; 
-        int returnValue = getaddrinfo(ServerIP, PortString.c_str(), &addressCriteria, &addressList);
-        if (returnValue != 0) {
-            ShiraNet::Logger::error("getaddrinfo() failed" + std::string(gai_strerror(returnValue)));
-        }
-        struct sockaddr_in* firstGottenAddress = reinterpret_cast<struct sockaddr_in*>(addressList->ai_addr);
+        struct sockaddr_in* firstGottenAddress = reinterpret_cast<struct sockaddr_in*>(getAddresses(ServerIP, PortString).list->ai_addr);
         socketAddress.sin_addr.s_addr = firstGottenAddress->sin_addr.s_addr;
-        freeaddrinfo(addressList);
     } else if (inetptonResult < 0) {
         std::cerr << "test2\n";
         // SHIRANET::ERROR something failed :shrug:
@@ -129,6 +119,19 @@ Buffer ShiraNet::Sockets::Socket::receive(unsigned int AmountOfBytesToRead) {
         receiveBuffer.data.resize(pos);
     }
     return receiveBuffer;
+}
+
+ShiraNet::Structs::AddressList ShiraNet::Sockets::Socket::getAddresses(char* ServerIP, std::string PortString) {
+    struct addrinfo addressCriteria{ 0 };
+    addressCriteria.ai_family = AF_UNSPEC;
+    addressCriteria.ai_socktype = type;
+    addressCriteria.ai_protocol = protocol; 
+    ShiraNet::Structs::AddressList returnAddressList{ };
+    int returnValue = getaddrinfo(ServerIP, PortString.c_str(), &addressCriteria, &returnAddressList.list);
+    if (returnValue != 0) {
+        ShiraNet::Logger::error("getaddrinfo() failed" + std::string(gai_strerror(returnValue)));
+    }
+    return returnAddressList;
 }
 
 std::string ShiraNet::Sockets::Socket::getAddressInfoToStringIP() {

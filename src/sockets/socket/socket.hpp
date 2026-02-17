@@ -2,6 +2,7 @@
 
 #include "../../utils/utils.hpp"
 #include "../../buffer/buffer.hpp"
+#include "../../host/address/address.hpp"
 
 #include <netinet/in.h>
 
@@ -40,6 +41,7 @@ namespace ShiraNet::Sockets {
             
             void send(Buffer& buffer);
             Buffer receive(unsigned int AmountOfBytesToRead);
+            ShiraNet::Structs::AddressList getAddresses(char* ServerIP, std::string PortString);
             std::string getAddressInfoToStringIP();
     };
 
