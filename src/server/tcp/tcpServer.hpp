@@ -18,7 +18,7 @@ namespace ShiraNet::Servers {
 
             std::vector<ShiraNet::Sockets::TcpSocket> clientSockets {};
 
-            void getConnection();
+            int getConnection(); // Accepts any incomming connection, adds it's socket to the clientSockets list and return the position in the vector for this new socket
             ShiraNet::Sockets::TcpSocket& getLastClient();
     };
 

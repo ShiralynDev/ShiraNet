@@ -11,8 +11,9 @@ ShiraNet::Servers::TcpServer::~TcpServer() {
     delete serverSocket;
 }
 
-void ShiraNet::Servers::TcpServer::getConnection() {
+int ShiraNet::Servers::TcpServer::getConnection() {
     clientSockets.push_back(std::move(serverSocket->getClientConnection()));
+    return clientSockets.size() - 1;
 }
 
 ShiraNet::Sockets::TcpSocket& ShiraNet::Servers::TcpServer::getLastClient() {
