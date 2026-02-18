@@ -8,5 +8,4 @@ namespace ShiraNet::Utils {
 		NoCopy& operator=(const NoCopy&) = delete;
 		NoCopy() = default;
 	};
-
 }

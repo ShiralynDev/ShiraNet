@@ -7,10 +7,10 @@ namespace ShiraNet {
     Logger::LogCallback Logger::logCallback = [](LogLevel level, const std::string& message) {
         const char* levelStr = "";
         switch (level) {
-            case LogLevel::Debug:   levelStr = "[DEBUG]"; break;
-            case LogLevel::Info:    levelStr = "[INFO]"; break;
-            case LogLevel::Warning: levelStr = "[WARNING]"; break;
-            case LogLevel::Error:   levelStr = "[ERROR]"; break;
+            case LogLevel::Debug:   levelStr = "\033[32m" "[DEBUG]"   "\033[0m"; break;
+            case LogLevel::Info:    levelStr = "\033[93m" "[INFO]"    "\033[0m"; break;
+            case LogLevel::Warning: levelStr = "\033[33m" "[WARNING]" "\033[0m"; break;
+            case LogLevel::Error:   levelStr = "\033[91m" "[ERROR]"   "\033[0m"; break;
         }
         std::cerr << levelStr << " " << message << std::endl;
     };
