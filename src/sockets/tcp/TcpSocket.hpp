@@ -16,15 +16,14 @@ namespace ShiraNet::Sockets {
      * - Opens socket on construction with predefined args
      */
     class TcpSocket : public Socket {
-        private:
-
-        public:
-            TcpSocket(int Domain);
-            TcpSocket(int SocketID, int Domain, int Type, int Protocol, sockaddr_in SocketAddress);
-            void connect(char* ServerIP, in_port_t ServerPort);
-            void bind(in_port_t ServerPort, in_addr_t ServerIP = INADDR_ANY);
-            void listen(int maxPendingRequest);
-            TcpSocket getClientConnection();
+    private:
+    public:
+        TcpSocket(int Domain);
+        TcpSocket(int SocketID, int Domain, int Type, int Protocol, sockaddr_in SocketAddress);
+        void connect(char* ServerIP, in_port_t ServerPort);
+        void bind(in_port_t ServerPort, in_addr_t ServerIP = INADDR_ANY);
+        void listen(int maxPendingRequest);
+        TcpSocket getClientConnection();
     };
 
 }

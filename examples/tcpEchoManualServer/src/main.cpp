@@ -1,7 +1,7 @@
 #include <ShiraNet.hpp>
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #define BUFFERSIZE 1024
 
@@ -27,7 +27,7 @@ void client() {
     std::getline(std::cin, dataToSend);
     dataToSend += "\n";
 
-    Buffer bufferToSend{BUFFERSIZE, dataToSend};
+    Buffer bufferToSend{ BUFFERSIZE, dataToSend };
 
     socket.send(bufferToSend);
     Buffer data = socket.receive(bufferToSend.size);
@@ -38,7 +38,7 @@ int main() {
     int i = 0;
     std::cout << "Act as server [1], Act as client [2]\n";
     std::cin >> i;
-    
+
     if (i == 1) {
         std::cout << "Acting as server\n";
         server();
@@ -48,6 +48,6 @@ int main() {
     } else {
         return 0;
     }
-    
+
     return 0;
 }
