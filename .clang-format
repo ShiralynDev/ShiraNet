@@ -1,0 +1,17 @@
+---
+BasedOnStyle: Mozilla
+AllowShortFunctionsOnASingleLine: All
+BreakBeforeBraces: Attach
+ColumnLimit: 0
+IndentCaseLabels: true
+IndentWidth: 4
+NamespaceIndentation: All
+PointerAlignment: Left
+UseTab: Never
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+
+
+AccessModifierOffset: -4
+
+...

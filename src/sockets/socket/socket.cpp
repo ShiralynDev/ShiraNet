@@ -3,12 +3,12 @@
 #include "../../error/error.hpp"
 #include "../../logger/logger.hpp"
 
-#include <unistd.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
-#include <errno.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 #include <cstring>
 #include <iostream>
@@ -96,11 +96,11 @@ void ShiraNet::Sockets::Socket::send(Buffer& buffer) {
 }
 
 Buffer ShiraNet::Sockets::Socket::receive(unsigned int AmountOfBytesToRead) {
-    Buffer receiveBuffer{AmountOfBytesToRead, ""};
+    Buffer receiveBuffer{ AmountOfBytesToRead, "" };
 
     unsigned int totalBytesReceived = 0;
     receiveBuffer.data.resize(AmountOfBytesToRead);
-    
+
     while (totalBytesReceived < AmountOfBytesToRead) {
         ssize_t bytesReceived = 0;
         bytesReceived = ::recv(socketID, &receiveBuffer.data[totalBytesReceived], AmountOfBytesToRead - totalBytesReceived, 0);
@@ -125,8 +125,8 @@ ShiraNet::Structs::AddressList ShiraNet::Sockets::Socket::getAddresses(char* Ser
     struct addrinfo addressCriteria{ 0 };
     addressCriteria.ai_family = AF_UNSPEC;
     addressCriteria.ai_socktype = type;
-    addressCriteria.ai_protocol = protocol; 
-    ShiraNet::Structs::AddressList returnAddressList{ };
+    addressCriteria.ai_protocol = protocol;
+    ShiraNet::Structs::AddressList returnAddressList{};
     int returnValue = getaddrinfo(ServerIP, PortString.c_str(), &addressCriteria, &returnAddressList.list);
     if (returnValue != 0) {
         ShiraNet::Logger::error("getaddrinfo() failed" + std::string(gai_strerror(returnValue)));

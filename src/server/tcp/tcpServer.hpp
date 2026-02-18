@@ -8,18 +8,18 @@
 namespace ShiraNet::Servers {
 
     class TcpServer {
-        private:
-            ShiraNet::Sockets::TcpSocket *serverSocket = nullptr;
+    private:
+        ShiraNet::Sockets::TcpSocket* serverSocket = nullptr;
 
-        public:
-            // creates the servers socket, binds it and listens
-            TcpServer(int Domain, int Port, int MaxClients);
-            ~TcpServer();
+    public:
+        // creates the servers socket, binds it and listens
+        TcpServer(int Domain, int Port, int MaxClients);
+        ~TcpServer();
 
-            std::vector<ShiraNet::Sockets::TcpSocket> clientSockets {};
+        std::vector<ShiraNet::Sockets::TcpSocket> clientSockets{};
 
-            int getConnection(); // Accepts any incomming connection, adds it's socket to the clientSockets list and return the position in the vector for this new socket
-            ShiraNet::Sockets::TcpSocket& getLastClient();
+        int getConnection(); // Accepts any incomming connection, adds it's socket to the clientSockets list and return the position in the vector for this new socket
+        ShiraNet::Sockets::TcpSocket& getLastClient();
     };
 
 }

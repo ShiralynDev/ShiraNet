@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.20)
+project(ShiraNet)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_BUILD_TYPE Debug)
-project(ShiraNet)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 

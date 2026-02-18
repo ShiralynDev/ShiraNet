@@ -2,3 +2,4 @@ build
 testing
 .vscode
 docs/html
+.cache
