@@ -6,23 +6,33 @@ build:
     cmake --build build
 
 alias bms := build-manual-server
-[group("Examples")]
+[group("Example")]
 build-manual-server:
-    cmake -G Ninja -S examples/tcpEchoManualServer -O examples/tcpEchoManualServer/build
-    cmake --build examples/tcpEchoManualServer/build
+    just build-example tcpEchoManualServer
 
 alias rms := run-manual-server
-[group("Examples")]
-run-manual-server: build-manual-server
-    examples/tcpEchoManualServer/build/ShiraNetTest
+[group("Example")]
+run-manual-server:
+    just run-example tcpEchoManualServer
 
 alias bss := build-shiranet-server
-[group("Examples")]
+[group("Example")]
 build-shiranet-server:
-    cmake -G Ninja -S examples/tcpEchoShiraNetServer -O examples/tcpEchoShiraNetServer/build
-    cmake --build examples/tcpEchoShiraNetServer/build
+    just build-example tcpEchoShiraNetServer
 
 alias rss := run-shiranet-server
-[group("Examples")]
-run-shiranet-server: build-shiranet-server
-    examples/tcpEchoShiraNetServer/build/ShiraNetTest
+[group("Example")]
+run-shiranet-server:
+    just run-example tcpEchoShiraNetServer
+
+
+# Generic example builder
+[group("Private")]
+build-example name:
+    cmake -S examples/{{name}} -G Ninja -B examples/{{name}}/build
+    cmake --build examples/{{name}}/build
+
+# Generic example runner
+[group("Private")]
+run-example name: (build-example name)
+    ./examples/{{name}}/build/ShiraNetTest
