@@ -6,7 +6,9 @@
 namespace ShiraNet {
 
     Exception::Exception(ErrorCode code, const std::string& msg, int sysErr)
-        : code(code), message(msg), systemError(sysErr) {
+      : code(code)
+      , message(msg)
+      , systemError(sysErr) {
     }
 
     const char* Exception::what() const noexcept {

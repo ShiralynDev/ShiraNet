@@ -1,13 +1,13 @@
 #include <ShiraNet.hpp>
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #define BUFFERSIZE 1024
 
 void server() {
     ShiraNet::Servers::TcpServer server(AF_INET, 57942, 5); // this is not the best example for servers since this handles one client at a time
-    while (true) { 
+    while (true) {
         int newClientIndex = server.getConnection();
         std::cout << server.clientSockets.at(newClientIndex).getAddressInfoToStringIP() << std::endl;
         Buffer bufferToSend = server.clientSockets.at(newClientIndex).receive(BUFFERSIZE);
@@ -26,7 +26,7 @@ void client() {
     std::getline(std::cin, dataToSend);
     dataToSend += "\n";
 
-    Buffer bufferToSend{BUFFERSIZE, dataToSend};
+    Buffer bufferToSend{ BUFFERSIZE, dataToSend };
     socket.send(bufferToSend);
     Buffer data = socket.receive(BUFFERSIZE);
     std::cout << data.data;
@@ -36,7 +36,7 @@ int main() {
     int i = 0;
     std::cout << "Act as server [1], Act as client [2]\n";
     std::cin >> i;
-    
+
     if (i == 1) {
         std::cout << "Acting as server\n";
         server();
@@ -46,6 +46,6 @@ int main() {
     } else {
         return 0;
     }
-    
+
     return 0;
 }
