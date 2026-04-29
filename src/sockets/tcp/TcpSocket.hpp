@@ -21,8 +21,8 @@ class TcpSocket : public Socket {
     TcpSocket();
     TcpSocket(int Domain);
     TcpSocket(int SocketID, int Domain, int Type, int Protocol, sockaddr_in SocketAddress);
-    void connect(std::string &ServerIP, in_port_t ServerPort);
-    void bind(in_port_t ServerPort, in_addr_t ServerIP = INADDR_ANY);
+    void connect(const std::string &ServerIP, const in_port_t &ServerPort);
+    void bind(const in_port_t &ServerPort, const in_addr_t &ServerIP = INADDR_ANY);
     void listen(int maxPendingRequest);
     TcpSocket getClientConnection();
 };

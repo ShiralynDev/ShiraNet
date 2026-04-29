@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME} ${TEST_SOURCE_FILES})
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_BINARY_DIR}/ShiraNet)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ShiraNet)
+target_compile_definitions(ShiraNet PRIVATE SHIRANET_LOG_LEVEL=0)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE

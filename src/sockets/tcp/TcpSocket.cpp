@@ -19,8 +19,8 @@ ShiraNet::Sockets::TcpSocket::TcpSocket(int SocketID, int Domain, int Type, int 
     : Socket(SocketID, Domain, Type, Protocol, SocketAddress) {
 }
 
-void ShiraNet::Sockets::TcpSocket::connect(std::string &ServerIP, in_port_t ServerPort) {
-    addStringIPToAddressInfo(ServerIP.data(), std::to_string(ServerPort));
+void ShiraNet::Sockets::TcpSocket::connect(const std::string &ServerIP, const in_port_t &ServerPort) {
+    addStringIPToAddressInfo(ServerIP, std::to_string(ServerPort));
     socketAddress.sin_port = htons(ServerPort);
     socketAddress.sin_family = domain;
 
@@ -29,7 +29,7 @@ void ShiraNet::Sockets::TcpSocket::connect(std::string &ServerIP, in_port_t Serv
     }
 }
 
-void ShiraNet::Sockets::TcpSocket::bind(in_port_t ServerPort, in_addr_t ServerIP) {
+void ShiraNet::Sockets::TcpSocket::bind(const in_port_t &ServerPort, const in_addr_t &ServerIP) {
     socketAddress.sin_addr.s_addr = htonl(ServerIP);
     socketAddress.sin_port = htons(ServerPort);
     socketAddress.sin_family = domain;

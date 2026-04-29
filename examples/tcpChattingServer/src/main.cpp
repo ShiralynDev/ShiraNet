@@ -8,7 +8,7 @@
 #include <thread>
 #include <unistd.h>
 
-void handleClient(std::shared_ptr<ShiraNet::Sockets::TcpSocket> Client, ShiraNet::Servers::TcpServer* Server) {
+void handleClient(std::shared_ptr<ShiraNet::Sockets::TcpSocket> Client, ShiraNet::Servers::TcpServer *Server) {
     try {
         while (true) {
             ShiraNet::NetworkData::Message message = Client->receiveMessage();
@@ -28,7 +28,7 @@ void server() {
     }
 }
 
-void sendMessage(ShiraNet::Sockets::TcpSocket* Socket, std::string* Name) {
+void sendMessage(ShiraNet::Sockets::TcpSocket *Socket, std::string *Name) {
     while (true) {
         std::string text;
         std::getline(std::cin, text);
@@ -45,25 +45,25 @@ void sendMessage(ShiraNet::Sockets::TcpSocket* Socket, std::string* Name) {
     }
 }
 
-void getMessage(ShiraNet::Sockets::TcpSocket* Socket) {
+void getMessage(ShiraNet::Sockets::TcpSocket *Socket) {
     while (true) {
-        ShiraNet::NetworkData::Message message{ Socket->receiveMessage() };
+        ShiraNet::NetworkData::Message message{Socket->receiveMessage()};
 
         switch (message.id) {
-            case 0:
-                std::cout << message.payload + " connected\n";
-                break;
+        case 0:
+            std::cout << message.payload + " connected\n";
+            break;
 
-            case 1:
-                std::cout << message.payload + "\n";
-                break;
+        case 1:
+            std::cout << message.payload + "\n";
+            break;
 
-            case 2:
-                std::cout << message.payload + " disconnected\n";
-                break;
+        case 2:
+            std::cout << message.payload + " disconnected\n";
+            break;
 
-            default:
-                break;
+        default:
+            break;
         }
     }
 }
@@ -80,8 +80,8 @@ void client() {
     ShiraNet::NetworkData::Message messageToSend(0, name);
     socket.send(messageToSend);
 
-    std::thread sendMessageThread{ sendMessage, &socket, &name };
-    std::thread{ getMessage, &socket }.detach();
+    std::thread sendMessageThread{sendMessage, &socket, &name};
+    std::thread{getMessage, &socket}.detach();
 
     while (true) {
         if (sendMessageThread.joinable()) {
