@@ -44,7 +44,7 @@ ShiraNet::Sockets::Socket::Socket(int SocketID, int Domain, int Type, int Protoc
     isValid = true;
 }
 
-ShiraNet::Sockets::Socket::Socket(Socket &&other) noexcept {
+ShiraNet::Sockets::Socket::Socket(Socket&& other) noexcept {
     socketID = other.socketID;
     domain = other.domain;
     type = other.type;
@@ -55,7 +55,7 @@ ShiraNet::Sockets::Socket::Socket(Socket &&other) noexcept {
     other.socketID = -1;
 }
 
-ShiraNet::Sockets::Socket &ShiraNet::Sockets::Socket::operator=(Socket &&other) noexcept {
+ShiraNet::Sockets::Socket& ShiraNet::Sockets::Socket::operator=(Socket&& other) noexcept {
     if (this != &other) {
         if (socketID >= 0) {
             close(socketID);
@@ -78,10 +78,10 @@ ShiraNet::Sockets::Socket::~Socket() {
     }
 }
 
-void ShiraNet::Sockets::Socket::addStringIPToAddressInfo(const std::string &ServerIP, const std::string &PortString) {
+void ShiraNet::Sockets::Socket::addStringIPToAddressInfo(const std::string& ServerIP, const std::string& PortString) {
     int inetptonResult = inet_pton(domain, ServerIP.c_str(), &socketAddress.sin_addr.s_addr);
     if (inetptonResult == 0) {
-        struct sockaddr_in *firstGottenAddress = reinterpret_cast<struct sockaddr_in *>(getAddresses(ServerIP, PortString).list->ai_addr);
+        struct sockaddr_in* firstGottenAddress = reinterpret_cast<struct sockaddr_in*>(getAddresses(ServerIP, PortString).list->ai_addr);
         socketAddress.sin_addr.s_addr = firstGottenAddress->sin_addr.s_addr;
     } else if (inetptonResult < 0) {
         std::cerr << "test2\n";
@@ -89,14 +89,14 @@ void ShiraNet::Sockets::Socket::addStringIPToAddressInfo(const std::string &Serv
     }
 }
 
-void ShiraNet::Sockets::Socket::send(const ShiraNet::NetworkData::Message &Message) {
+void ShiraNet::Sockets::Socket::send(const ShiraNet::NetworkData::Message& Message) {
     const int totalBytesToSend = sizeof(Message.id) + sizeof(Message.payloadSize) + Message.payload.size();
 
     Logger::debug("Sending " + std::to_string(totalBytesToSend) + " bytes");
     uint32_t networkMessageID = htonl(Message.id);
     uint32_t networkPayloadSize = htonl(Message.payloadSize);
-    ssize_t numberOfBytes = ::send(socketID, reinterpret_cast<char *>(&networkMessageID), sizeof(networkMessageID), 0);
-    numberOfBytes += ::send(socketID, reinterpret_cast<char *>(&networkPayloadSize), sizeof(networkPayloadSize), 0);
+    ssize_t numberOfBytes = ::send(socketID, reinterpret_cast<char*>(&networkMessageID), sizeof(networkMessageID), 0);
+    numberOfBytes += ::send(socketID, reinterpret_cast<char*>(&networkPayloadSize), sizeof(networkPayloadSize), 0);
     numberOfBytes += ::send(socketID, Message.payload.data(), Message.payloadSize, 0);
 
     if (numberOfBytes < 0) {
@@ -111,7 +111,7 @@ void ShiraNet::Sockets::Socket::send(const ShiraNet::NetworkData::Message &Messa
 }
 
 ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfBytesToRead) {
-    NetworkData::Buffer receiveBuffer{AmountOfBytesToRead, ""};
+    NetworkData::Buffer receiveBuffer{ AmountOfBytesToRead, "" };
     unsigned int totalBytesReceived = 0;
     receiveBuffer.data.clear();
     receiveBuffer.data.resize(receiveBuffer.size);
@@ -149,15 +149,15 @@ ShiraNet::NetworkData::Message ShiraNet::Sockets::Socket::receiveMessage() {
 
     ShiraNet::Logger::debug("Message id: " + std::to_string(messageID) + " Payload size:" + std::to_string(payloadSize));
 
-    ShiraNet::NetworkData::Message receivedMessage{messageID, payloadSize};
+    ShiraNet::NetworkData::Message receivedMessage{ messageID, payloadSize };
 
     receiveBuffer = receive(payloadSize);
     receivedMessage.payload = receiveBuffer.data;
     return receivedMessage;
 }
 
-ShiraNet::Structs::AddressList ShiraNet::Sockets::Socket::getAddresses(const std::string &ServerIP, const std::string &PortString) {
-    struct addrinfo addressCriteria{0};
+ShiraNet::Structs::AddressList ShiraNet::Sockets::Socket::getAddresses(const std::string& ServerIP, const std::string& PortString) {
+    struct addrinfo addressCriteria{ 0 };
     addressCriteria.ai_family = domain;
     addressCriteria.ai_socktype = type;
     addressCriteria.ai_protocol = protocol;

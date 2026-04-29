@@ -8,33 +8,33 @@
 #include <sys/socket.h>
 
 ShiraNet::Sockets::TcpSocket::TcpSocket()
-    : Socket() {
+  : Socket() {
 }
 
 ShiraNet::Sockets::TcpSocket::TcpSocket(int Domain)
-    : Socket(Domain, SOCK_STREAM, IPPROTO_TCP) {
+  : Socket(Domain, SOCK_STREAM, IPPROTO_TCP) {
 }
 
 ShiraNet::Sockets::TcpSocket::TcpSocket(int SocketID, int Domain, int Type, int Protocol, sockaddr_in SocketAddress)
-    : Socket(SocketID, Domain, Type, Protocol, SocketAddress) {
+  : Socket(SocketID, Domain, Type, Protocol, SocketAddress) {
 }
 
-void ShiraNet::Sockets::TcpSocket::connect(const std::string &ServerIP, const in_port_t &ServerPort) {
+void ShiraNet::Sockets::TcpSocket::connect(const std::string& ServerIP, const in_port_t& ServerPort) {
     addStringIPToAddressInfo(ServerIP, std::to_string(ServerPort));
     socketAddress.sin_port = htons(ServerPort);
     socketAddress.sin_family = domain;
 
-    if (::connect(socketID, (struct sockaddr *)&socketAddress, sizeof(socketAddress)) < 0) {
+    if (::connect(socketID, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
         throw "FUCK!"; // SHIRANET::ERROR
     }
 }
 
-void ShiraNet::Sockets::TcpSocket::bind(const in_port_t &ServerPort, const in_addr_t &ServerIP) {
+void ShiraNet::Sockets::TcpSocket::bind(const in_port_t& ServerPort, const in_addr_t& ServerIP) {
     socketAddress.sin_addr.s_addr = htonl(ServerIP);
     socketAddress.sin_port = htons(ServerPort);
     socketAddress.sin_family = domain;
 
-    if (::bind(socketID, (struct sockaddr *)&socketAddress, sizeof(socketAddress)) < 0) {
+    if (::bind(socketID, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
         Logger::error("Socket bind failed");
         throw Exception(ErrorCode::BindFailed, "Failed to bind socket", errno);
     }
@@ -53,11 +53,11 @@ ShiraNet::Sockets::TcpSocket ShiraNet::Sockets::TcpSocket::getClientConnection()
     struct sockaddr_in clientAddress;
     socklen_t clientAddressLength = sizeof(clientAddress);
 
-    int clientSocket = ::accept(socketID, (struct sockaddr *)&clientAddress, &clientAddressLength);
+    int clientSocket = ::accept(socketID, (struct sockaddr*)&clientAddress, &clientAddressLength);
     if (clientSocket < 0) {
         Logger::info("Failed to accept socket");
-        return TcpSocket{AF_UNSPEC};
+        return TcpSocket{ AF_UNSPEC };
     }
 
-    return TcpSocket{clientSocket, domain, type, protocol, socketAddress};
+    return TcpSocket{ clientSocket, domain, type, protocol, socketAddress };
 }
