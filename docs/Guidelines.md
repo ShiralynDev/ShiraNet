@@ -55,8 +55,8 @@ int i = f(); // meh
 ```
 
 ## Naming
-Folders, functions and varibles should be named using camelCase <br>
-Files, Namespaces and classes should be named using PascalCase <br>
+Files, Folders, functions and varibles should be named using camelCase <br>
+Namespaces and classes should be named using PascalCase <br>
 function args should be named using PascalCase (allows same name for class function args as class memebers) <br>
 Enums and simmilare should be named using MACRO_CASE <br>
 

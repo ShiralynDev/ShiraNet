@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../sockets/tcp/TcpSocket.hpp"
+#include "../../sockets/tcp/tcpSocket.hpp"
 
 #include <functional>
 #include <memory>
@@ -28,7 +28,7 @@ namespace ShiraNet::Servers {
         void removeClient(std::shared_ptr<ShiraNet::Sockets::TcpSocket> Client);
         void getConnection(); // Accepts any incomming connection, adds it's socket to the clients list
         void getConnection(ClientHandlerCallback Callback);
-        void getConnections(); // Accepts any incomming connection in a loop run on the serverThread;
+        void getConnections(); // Accepts any incoming connections in a loop and is ran on the serverThread;
         void getConnections(ClientHandlerCallback Callback);
         std::shared_ptr<ShiraNet::Sockets::TcpSocket> getClient(int i);
         void sendToAll(ShiraNet::NetworkData::Message Message);
