@@ -100,8 +100,8 @@ void ShiraNet::Sockets::Socket::send(const ShiraNet::NetworkData::Message& Messa
     numberOfBytes += ::send(socketID, Message.payload.data(), Message.payloadSize, 0);
 
     if (numberOfBytes < 0) {
-        Logger::error("Send failed");
-        throw Exception(ErrorCode::SendFailed, "Failed to send data", errno);
+        Logger::warning("Send failed");
+        Exception(ErrorCode::SendFailed, "Failed to send data", errno);
     } else if (numberOfBytes != totalBytesToSend) {
         Logger::warning("Partial send: " + std::to_string(numberOfBytes) + "/" + std::to_string(totalBytesToSend) + " bytes");
         throw Exception(ErrorCode::PartialSend, "Sent partial data");
