@@ -39,12 +39,21 @@ namespace ShiraNet::NetworkData {
         };
 
         template<typename T>
-        Message(uint32_t ID, DataField<T> Data) {
+        Message(uint32_t ID, DataField<T> Data) { // Sets payload data and size automagically
             id = ID;
             dataFieldToPayload(Data);
         };
 
-        Message(uint32_t ID, std::string Data) {
+        template<typename T>
+        Message(uint32_t ID, T Data) { // Sets payload data and size automagically
+            id = ID;
+            DataField<T> dataField;
+            dataField.data = Data;
+            dataField.size = sizeof(Data);
+            dataFieldToPayload(dataField);
+        };
+
+        Message(uint32_t ID, std::string Data) { // Sets payload data and size automagically
             id = ID;
             payload = Data;
             payloadSize = payload.size();
