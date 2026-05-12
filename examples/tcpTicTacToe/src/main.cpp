@@ -85,11 +85,7 @@ void host() {
         clearAndDrawBoard(markers);
         if (xTurn && isPlayerX || !xTurn && !isPlayerX) {
             markers.push_back(playTurn());
-            ShiraNet::NetworkData::Message markerPlacementMessage(2);
-            ShiraNet::NetworkData::DataField<std::vector<placedMarker>> markerPlacementData;
-            markerPlacementData.data = markers;
-            markerPlacementData.size = sizeof(markerPlacementData.data);
-            markerPlacementMessage.dataFieldToPayload(markerPlacementData);
+            ShiraNet::NetworkData::Message markerPlacementMessage(2, markers);
             server.sendToAll(markerPlacementMessage);
             xTurn = !xTurn;
         } else {
@@ -121,36 +117,37 @@ void client() {
     while (true) {
         try {
             ShiraNet::NetworkData::Message message{ client.receiveMessage() };
-            ShiraNet::NetworkData::Message markerPlacementMessage(2);
 
-            ShiraNet::NetworkData::DataField<bool> data0;
-            ShiraNet::NetworkData::DataField<std::vector<placedMarker>> data1;
-            ShiraNet::NetworkData::DataField<placedMarker> markerPlacementData;
-            placedMarker markerPlacement;
             switch (message.id) {
-                case 1:
+                case 1: {
                     if (markers.size() == 0)
                         isPlayerX = true;
+
+                    placedMarker markerPlacement;
                     markerPlacement = playTurn();
                     markers.push_back(markerPlacement);
-                    markerPlacementData.data = markerPlacement;
-                    markerPlacementData.size = sizeof(markerPlacementData.data);
-                    markerPlacementMessage.dataFieldToPayload(markerPlacementData);
-                    client.send(markerPlacementMessage);
-                    clearAndDrawBoard(markers);
-                    break;
 
-                case 2:
-                    message.payloadToDataField(data1);
-                    markers = data1.data;
+                    ShiraNet::NetworkData::Message markerPlacementMessage(2, markerPlacement);
+                    client.send(markerPlacementMessage);
+
                     clearAndDrawBoard(markers);
                     break;
+                }
+
+                case 2: {
+                    ShiraNet::NetworkData::DataField<std::vector<placedMarker>> data;
+                    message.payloadToDataField(data);
+                    markers = data.data;
+                    clearAndDrawBoard(markers);
+                    break;
+                }
 
                 default:
                     break;
             }
         } catch (...) {
-            std::cout << "smth failed";
+            std::cout << "Host closed session\n";
+            return;
         };
         if (winConditions(markers)) {
             return;
