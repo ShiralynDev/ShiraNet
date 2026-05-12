@@ -78,7 +78,7 @@ void host() {
 
     server.getConnection(handleClient);
 
-    isPlayerX = rand() % 1;
+    isPlayerX = rand() % 2;
     std::vector<placedMarker> markers;
 
     while (true) {
