@@ -1,3 +1,7 @@
+/*
+This is a bad example, don't code like this
+*/
+
 #include <ShiraNet.hpp>
 
 #include <cstdlib>
@@ -13,11 +17,23 @@ struct placedMarker {
     int xPos;
     int yPos;
     bool playerX;
+
+    void serialize(std::ostream& out) const {
+        out << xPos << ' ';
+        out << yPos << ' ';
+        out << playerX << ' ';
+    }
+
+    void deserialize(std::istream& in) {
+        in >> xPos >> yPos >> playerX;
+    }
 };
 
-std::vector<placedMarker> markers;
+int winConditions(std::vector<placedMarker> markers) {
+    return 0;
+}
 
-void clearAndDrawBoard() {
+void clearAndDrawBoard(std::vector<placedMarker> markers) {
 #ifdef __unix__
     system("clear");
 #else
@@ -29,7 +45,7 @@ void clearAndDrawBoard() {
             bool placedMarker = false;
             for (auto marker : markers) {
                 if (marker.xPos == j && marker.yPos == i) {
-                    if (isPlayerX)
+                    if (marker.playerX)
                         std::cout << "x";
                     else
                         std::cout << "o";
@@ -44,18 +60,13 @@ void clearAndDrawBoard() {
     }
 }
 
-void playTurn() {
-    clearAndDrawBoard();
-    if (xTurn && isPlayerX || !xTurn && !isPlayerX) {
-        std::cout << "Enter x & y pos, (xy)\n";
-        std::string input;
-        std::cin >> input;
-        int xPos = std::stoi(input.substr(0, 1));
-        int yPos = std::stoi(input.substr(1, 1));
-        markers.push_back({ xPos, yPos, isPlayerX });
-        clearAndDrawBoard();
-    } else {
-    }
+placedMarker playTurn() {
+    std::cout << "Enter x & y pos, (xy)\n";
+    std::string input;
+    std::cin >> input;
+    int xPos = std::stoi(input.substr(0, 1));
+    int yPos = std::stoi(input.substr(1, 1));
+    return placedMarker{ xPos - 1, yPos - 1, isPlayerX };
 }
 
 void handleClient(std::shared_ptr<ShiraNet::Sockets::TcpSocket> client, ShiraNet::Servers::TcpServer* server) {
@@ -66,33 +77,32 @@ void host() {
     ShiraNet::Servers::TcpServer server(AF_INET, 1337, 1);
 
     server.getConnection(handleClient);
+
     isPlayerX = rand() % 1;
-
-    std::cout << isPlayerX << std::endl;
-
-    ShiraNet::NetworkData::Message playerTypeMessage(0);
-    ShiraNet::NetworkData::DataField<bool> playerTypeData;
-    playerTypeData.data = !isPlayerX;
-    playerTypeData.size = sizeof(bool);
-    playerTypeMessage.dataFieldToPayload(playerTypeData);
-    server.sendToAll(playerTypeMessage);
+    std::vector<placedMarker> markers;
 
     while (true) {
-        playTurn();
-        ShiraNet::NetworkData::Message markerPlacementMessage(1);
-        ShiraNet::NetworkData::DataField<std::vector<placedMarker>> markerPlacementData;
-        markerPlacementData.data = markers;
-        markerPlacementData.size = sizeof(markerPlacementData.data);
-        markerPlacementMessage.dataFieldToPayload(markerPlacementData);
-        server.sendToAll(markerPlacementMessage);
-
-        bool gotMessage = false;
-        while (!gotMessage) {
-            try {
-                ShiraNet::NetworkData::Message message{ server.getClient(0)->receiveMessage() };
-                gotMessage == true;
-            } catch (...) {
-            }
+        clearAndDrawBoard(markers);
+        if (xTurn && isPlayerX || !xTurn && !isPlayerX) {
+            markers.push_back(playTurn());
+            ShiraNet::NetworkData::Message markerPlacementMessage(2);
+            ShiraNet::NetworkData::DataField<std::vector<placedMarker>> markerPlacementData;
+            markerPlacementData.data = markers;
+            markerPlacementData.size = sizeof(markerPlacementData.data);
+            markerPlacementMessage.dataFieldToPayload(markerPlacementData);
+            server.sendToAll(markerPlacementMessage);
+            xTurn = !xTurn;
+        } else {
+            server.sendToAll(1);
+            ShiraNet::NetworkData::Message otherClientsPlacement = server.getClient(0)->receiveMessage();
+            ShiraNet::NetworkData::DataField<placedMarker> placedMarker;
+            otherClientsPlacement.payloadToDataField(placedMarker);
+            markers.push_back({ placedMarker.data.xPos, placedMarker.data.yPos, !isPlayerX });
+            xTurn = !xTurn;
+        }
+        clearAndDrawBoard(markers);
+        if (winConditions(markers)) {
+            return;
         }
     }
 }
@@ -104,24 +114,47 @@ void client() {
     ShiraNet::Sockets::TcpSocket client(AF_INET);
     client.connect(inputIp, 1337);
 
+    std::vector<placedMarker> markers;
+
+    clearAndDrawBoard(markers);
+
     while (true) {
         try {
             ShiraNet::NetworkData::Message message{ client.receiveMessage() };
+            ShiraNet::NetworkData::Message markerPlacementMessage(2);
 
-            std::istringstream stream(message.payload, std::ios::binary);
-
+            ShiraNet::NetworkData::DataField<bool> data0;
+            ShiraNet::NetworkData::DataField<std::vector<placedMarker>> data1;
+            ShiraNet::NetworkData::DataField<placedMarker> markerPlacementData;
+            placedMarker markerPlacement;
             switch (message.id) {
-                case 0:
-                    bool value;
-                    stream.read(reinterpret_cast<char*>(&value), sizeof(value));
-                    std::cout << value;
+                case 1:
+                    if (markers.size() == 0)
+                        isPlayerX = true;
+                    markerPlacement = playTurn();
+                    markers.push_back(markerPlacement);
+                    markerPlacementData.data = markerPlacement;
+                    markerPlacementData.size = sizeof(markerPlacementData.data);
+                    markerPlacementMessage.dataFieldToPayload(markerPlacementData);
+                    client.send(markerPlacementMessage);
+                    clearAndDrawBoard(markers);
+                    break;
+
+                case 2:
+                    message.payloadToDataField(data1);
+                    markers = data1.data;
+                    clearAndDrawBoard(markers);
                     break;
 
                 default:
                     break;
             }
         } catch (...) {
+            std::cout << "smth failed";
         };
+        if (winConditions(markers)) {
+            return;
+        }
     }
 }
 
