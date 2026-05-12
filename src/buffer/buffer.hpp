@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace ShiraNet::NetworkData {
 
@@ -49,22 +50,64 @@ namespace ShiraNet::NetworkData {
             payloadSize = payload.size();
         };
 
+        // TODO: clean ts up
+
         template<typename T>
-        void dataFieldToPayload(DataField<T> Data) {
-            std::ostringstream stream;
+        struct is_std_vector : std::false_type {};
 
-            stream.write(reinterpret_cast<const char*>(&Data.size), sizeof(Data.size));
+        template<typename T, typename Alloc>
+        struct is_std_vector<std::vector<T, Alloc>> : std::true_type {};
 
-            if constexpr (std::is_same_v<T, std::string>) {
-                stream.write(Data.data.data(), Data.data.size());
-            } else if constexpr (std::is_trivially_copyable_v<T>) {
-                stream.write(reinterpret_cast<const char*>(&Data.data), sizeof(T));
+        template<typename T>
+        void dataFieldToPayload(DataField<T> Data) { // I hate that im not allowed to have this in a .cpp file
+            std::ostringstream outputStream;
+
+            if constexpr (std::is_arithmetic_v<T> || std::is_same_v<T, std::string>) {
+                outputStream << Data.data;
+            } else if constexpr (is_std_vector<T>::value) {
+                outputStream << Data.data.size() << ' ';
+
+                for (auto& item : Data.data) {
+                    using Eliminator = typename T::value_type;
+
+                    if constexpr (std::is_arithmetic_v<Eliminator> || std::is_same_v<Eliminator, std::string>) {
+                        outputStream << item << ' ';
+                    } else {
+                        item.serialize(outputStream);
+                    }
+                }
             } else {
-                Data.data.serialize(stream);
+                Data.data.serialize(outputStream);
             }
 
-            payload = stream.str();
+            payload = outputStream.str();
             payloadSize = payload.size();
+        }
+
+        template<typename T>
+        void payloadToDataField(DataField<T>& Data) {
+            std::istringstream inputStream(payload);
+
+            if constexpr (std::is_arithmetic_v<T> || std::is_same_v<T, std::string>) {
+                inputStream >> Data.data;
+            } else if constexpr (is_std_vector<T>::value) {
+                using Eliminator = typename T::value_type;
+
+                size_t size;
+                inputStream >> size;
+
+                Data.data.resize(size);
+
+                for (auto& item : Data.data) {
+                    if constexpr (std::is_arithmetic_v<Eliminator> || std::is_same_v<Eliminator, std::string>) {
+                        inputStream >> item;
+                    } else {
+                        item.deserialize(inputStream);
+                    }
+                }
+            } else {
+                Data.data.deserialize(inputStream);
+            }
         }
     };
 
