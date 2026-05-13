@@ -4,11 +4,31 @@
 #include "../../host/address/address.hpp"
 #include "../../utils/utils.hpp"
 
+#ifdef __linux__
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
+#elif _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#endif
 
 #include <string>
 
 namespace ShiraNet::Sockets {
+
+    static void initWinsock() {
+#ifdef _WIN32
+        static bool initialized = false;
+        if (!initialized) {
+            WSADATA wsaData;
+            WSAStartup(MAKEWORD(2, 2), &wsaData);
+            initialized = true;
+        }
+#endif
+    }
 
     /**
      * @brief Represents a socket.

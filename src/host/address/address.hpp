@@ -2,21 +2,26 @@
 
 #include "../../utils/utils.hpp"
 
+#include <cstdint>
+
+#ifdef __linux__
 #include <netdb.h>
 #include <sys/socket.h>
+#elif _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#endif
+
+#ifndef in_port_t
+typedef uint16_t in_port_t;
+#endif
+
+#ifdef _WIN32
+typedef uint32_t in_addr_t;
+#endif
 
 namespace ShiraNet::Structs {
-
-    struct AddressInfo { // not used rn
-        int flags;
-        int family;
-        int socketType;
-        int protocol;
-        socklen_t addressLength;
-        struct sockaddr* socketAddress;
-        char* canonname;
-        struct AddressInfo* next;
-    };
 
     struct AddressList : public ShiraNet::Utils::NoCopy {
         struct addrinfo* list{ 0 };

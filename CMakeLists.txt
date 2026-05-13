@@ -13,6 +13,10 @@ file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
+if (WIN32)
+    target_link_libraries(ShiraNet PUBLIC ws2_32)
+endif()
+
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src

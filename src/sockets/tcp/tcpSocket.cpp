@@ -3,9 +3,7 @@
 #include "../../error/error.hpp"
 #include "../../logger/logger.hpp"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
+#include <cstring>
 
 ShiraNet::Sockets::TcpSocket::TcpSocket()
   : Socket() {
@@ -29,13 +27,13 @@ void ShiraNet::Sockets::TcpSocket::connect(const std::string& ServerIP, const in
     }
 }
 
-void ShiraNet::Sockets::TcpSocket::bind(const in_port_t& ServerPort, const in_addr_t& ServerIP) {
-    socketAddress.sin_addr.s_addr = htonl(ServerIP);
+void ShiraNet::Sockets::TcpSocket::bind(const in_port_t& ServerPort, const uint32_t& ServerIP) {
+    socketAddress.sin_addr.s_addr = ServerIP;
     socketAddress.sin_port = htons(ServerPort);
     socketAddress.sin_family = domain;
 
     if (::bind(socketID, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
-        Logger::error("Socket bind failed");
+        Logger::error("Socket bind failed: " + std::string(strerror(errno)));
         throw Exception(ErrorCode::BindFailed, "Failed to bind socket", errno);
     }
 

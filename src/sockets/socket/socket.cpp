@@ -3,11 +3,8 @@
 #include "../../error/error.hpp"
 #include "../../logger/logger.hpp"
 
-#include <arpa/inet.h>
 #include <errno.h>
-#include <netdb.h>
 #include <stdio.h>
-#include <sys/socket.h>
 #include <unistd.h>
 
 #include <cstdint>
@@ -22,12 +19,13 @@ ShiraNet::Sockets::Socket::Socket(int Domain, int Type, int Protocol) {
     domain = Domain;
     type = Type;
     protocol = Protocol;
+    initWinsock();
 
     Logger::debug("Creating socket...");
-    socketID = socket(domain, type, protocol);
+    socketID = ::socket(domain, type, protocol);
 
     if (socketID < 0) {
-        Logger::warning("Socket creation failed");
+        Logger::error("Socket creation failed");
         isValid = false;
     }
     Logger::info("Socket created successfully");
