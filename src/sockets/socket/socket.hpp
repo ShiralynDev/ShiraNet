@@ -61,8 +61,8 @@ namespace ShiraNet::Sockets {
 
         bool isSocketValid() { return isValid; };
         void send(const NetworkData::Message& Message);
-        NetworkData::Buffer receive(int bytesToRead);
-        NetworkData::Message receiveMessage();
+        NetworkData::Buffer receive(int bytesToRead, int Flags = 0);
+        NetworkData::Message receiveMessage(int Flags = 0);
         ShiraNet::Structs::AddressList getAddresses(const std::string& ServerIP, const std::string& PortString);
         std::string getAddressInfoToStringIP();
     };

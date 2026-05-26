@@ -108,7 +108,7 @@ void ShiraNet::Sockets::Socket::send(const ShiraNet::NetworkData::Message& Messa
     Logger::debug("Successfully sent " + std::to_string(numberOfBytes) + " bytes");
 }
 
-ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfBytesToRead) {
+ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfBytesToRead, int Flags) {
     NetworkData::Buffer receiveBuffer{ AmountOfBytesToRead, "" };
     unsigned int totalBytesReceived = 0;
     receiveBuffer.data.clear();
@@ -116,7 +116,7 @@ ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfByt
 
     while (totalBytesReceived < AmountOfBytesToRead) {
         ssize_t bytesReceived = 0;
-        bytesReceived = ::recv(socketID, &receiveBuffer.data[totalBytesReceived], AmountOfBytesToRead - totalBytesReceived, 0);
+        bytesReceived = ::recv(socketID, &receiveBuffer.data[totalBytesReceived], AmountOfBytesToRead - totalBytesReceived, Flags);
         if (bytesReceived < 0) {
             Logger::warning("Failed to receive data");
             throw Exception(ErrorCode::ReceiveFailed, "Failed to receive data", errno);
@@ -130,12 +130,12 @@ ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfByt
     return receiveBuffer;
 }
 
-ShiraNet::NetworkData::Message ShiraNet::Sockets::Socket::receiveMessage() {
+ShiraNet::NetworkData::Message ShiraNet::Sockets::Socket::receiveMessage(int Flags) {
     const int messageIDSize = sizeof(uint32_t);
     const int payloadSizeSize = sizeof(uint32_t);
     const int totalBytesToReceive = messageIDSize + payloadSizeSize;
 
-    NetworkData::Buffer receiveBuffer = receive(totalBytesToReceive);
+    NetworkData::Buffer receiveBuffer = receive(totalBytesToReceive, Flags);
 
     uint32_t messageID = 0;
     std::memcpy(&messageID, receiveBuffer.data.data(), sizeof(messageID));
