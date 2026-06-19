@@ -75,14 +75,20 @@ namespace ShiraNet::NetworkData {
                 outputStream << Data.data;
             } else if constexpr (is_std_vector<T>::value) {
                 outputStream << Data.data.size() << ' ';
-
-                for (auto& item : Data.data) {
-                    using Eliminator = typename T::value_type;
-
-                    if constexpr (std::is_arithmetic_v<Eliminator> || std::is_same_v<Eliminator, std::string>) {
+                
+                using Eliminator = typename T::value_type;
+                if constexpr (std::is_same_v<Eliminator, bool>) {
+                    for (bool item : Data.data) {
                         outputStream << item << ' ';
-                    } else {
-                        item.serialize(outputStream);
+                    }
+                } else {
+                    for (auto& item : Data.data) {
+                        if constexpr (std::is_arithmetic_v<Eliminator> || std::is_same_v<Eliminator, std::string>) {
+                            outputStream << item << ' ';
+                        }
+                        else {
+                            item.serialize(outputStream);
+                        }
                     }
                 }
             } else {
@@ -107,11 +113,20 @@ namespace ShiraNet::NetworkData {
 
                 Data.data.resize(size);
 
-                for (auto& item : Data.data) {
-                    if constexpr (std::is_arithmetic_v<Eliminator> || std::is_same_v<Eliminator, std::string>) {
-                        inputStream >> item;
-                    } else {
-                        item.deserialize(inputStream);
+               if constexpr (std::is_same_v<Eliminator, bool>) {
+                    for (auto item : Data.data) {
+                        bool temp;
+                        inputStream >> temp;
+                        item = temp;
+                    }
+                } else {
+                    for (auto& item : Data.data) {
+                        if constexpr (std::is_arithmetic_v<Eliminator> || std::is_same_v<Eliminator, std::string>) {
+                            inputStream >> item;
+                        } 
+                        else {
+                            item.deserialize(inputStream);
+                        }
                     }
                 }
             } else {
