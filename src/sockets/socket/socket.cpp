@@ -19,7 +19,9 @@ ShiraNet::Sockets::Socket::Socket(int Domain, int Type, int Protocol) {
     domain = Domain;
     type = Type;
     protocol = Protocol;
+#ifdef _WIN32
     initWinsock();
+#endif
 
     Logger::debug("Creating socket...");
     socketID = ::socket(domain, type, protocol);
@@ -114,7 +116,7 @@ ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfByt
     receiveBuffer.data.clear();
     receiveBuffer.data.resize(receiveBuffer.size);
 
-    while (totalBytesReceived < AmountOfBytesToRead) {
+    while (totalBytesReceived < static_cast<unsigned int>(AmountOfBytesToRead)) {
         ssize_t bytesReceived = 0;
         bytesReceived = ::recv(socketID, &receiveBuffer.data[totalBytesReceived], AmountOfBytesToRead - totalBytesReceived, Flags);
         if (bytesReceived < 0) {
@@ -155,7 +157,7 @@ ShiraNet::NetworkData::Message ShiraNet::Sockets::Socket::receiveMessage(int Fla
 }
 
 ShiraNet::Structs::AddressList ShiraNet::Sockets::Socket::getAddresses(const std::string& ServerIP, const std::string& PortString) {
-    struct addrinfo addressCriteria{ 0 };
+    struct addrinfo addressCriteria{};
     addressCriteria.ai_family = domain;
     addressCriteria.ai_socktype = type;
     addressCriteria.ai_protocol = protocol;

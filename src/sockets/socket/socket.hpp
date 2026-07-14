@@ -19,16 +19,16 @@
 
 namespace ShiraNet::Sockets {
 
-    static void initWinsock() {
 #ifdef _WIN32
+    static void initWinsock() {
         static bool initialized = false;
         if (!initialized) {
             WSADATA wsaData;
             WSAStartup(MAKEWORD(2, 2), &wsaData);
             initialized = true;
         }
-#endif
     }
+#endif
 
     /**
      * @brief Represents a socket.
@@ -47,7 +47,7 @@ namespace ShiraNet::Sockets {
         int type = 0;
         int protocol = 0;
         bool isValid = 0;
-        sockaddr_in socketAddress{ 0 };
+        sockaddr_in socketAddress{};
 
         void addStringIPToAddressInfo(const std::string& ServerIP, const std::string& PortString);
 
