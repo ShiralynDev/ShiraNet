@@ -9,12 +9,16 @@
 namespace ShiraNet::NetworkData {
 
     struct Buffer {
+        bool valid = true;
         unsigned int size = 0;
         std::string data{ 0 };
         Buffer(int Size, std::string Data = "") {
             size = Size;
             data = Data;
             data.resize(Size);
+        }
+        Buffer() {
+            valid = false;
         }
     };
 
@@ -25,9 +29,14 @@ namespace ShiraNet::NetworkData {
     };
 
     struct Message {
+        bool valid = true;
         uint32_t id = 0;
         uint32_t payloadSize = 0;
         std::string payload = "";
+
+        Message() {
+            valid = false;
+        };
 
         Message(uint32_t ID, uint32_t PayloadSize) {
             id = ID;

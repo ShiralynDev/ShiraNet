@@ -2,7 +2,10 @@
 
 #include "../../error/error.hpp"
 #include "../../logger/logger.hpp"
+#include "buffer/buffer.hpp"
 
+#include <cerrno>
+#include <cstddef>
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -131,13 +134,16 @@ ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfByt
         ssize_t bytesReceived = 0;
         bytesReceived = ::recv(socketID, &receiveBuffer.data[totalBytesReceived], AmountOfBytesToRead - totalBytesReceived, Flags);
         if (bytesReceived < 0) {
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                return NetworkData::Buffer{};
+            }
             Logger::warning("Failed to receive data");
             throw Exception(ErrorCode::ReceiveFailed, "Failed to receive data", errno);
         } else if (bytesReceived == 0) {
             Logger::warning("Connection closed early");
             throw Exception(ErrorCode::ConnectionClosedEarly, "Connection closed early");
         }
-        totalBytesReceived += bytesReceived;
+            totalBytesReceived += bytesReceived;
     }
 
     return receiveBuffer;
@@ -149,6 +155,8 @@ ShiraNet::NetworkData::Message ShiraNet::Sockets::Socket::receiveMessage(int Fla
     const int totalBytesToReceive = messageIDSize + payloadSizeSize;
 
     NetworkData::Buffer receiveBuffer = receive(totalBytesToReceive, Flags);
+    if (!receiveBuffer.valid)
+        return NetworkData::Message{};
 
     uint32_t messageID = 0;
     std::memcpy(&messageID, receiveBuffer.data.data(), sizeof(messageID));
@@ -158,9 +166,9 @@ ShiraNet::NetworkData::Message ShiraNet::Sockets::Socket::receiveMessage(int Fla
     messageID = ntohl(messageID);
     payloadSize = ntohl(payloadSize);
 
-    ShiraNet::Logger::debug("Message id: " + std::to_string(messageID) + " Payload size:" + std::to_string(payloadSize));
+    Logger::debug("Message id: " + std::to_string(messageID) + " Payload size:" + std::to_string(payloadSize));
 
-    ShiraNet::NetworkData::Message receivedMessage{ messageID, payloadSize };
+    NetworkData::Message receivedMessage{ messageID, payloadSize };
 
     receiveBuffer = receive(payloadSize);
     receivedMessage.payload = receiveBuffer.data;
