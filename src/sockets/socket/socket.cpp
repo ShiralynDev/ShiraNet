@@ -95,19 +95,30 @@ void ShiraNet::Sockets::Socket::send(const ShiraNet::NetworkData::Message& Messa
     Logger::debug("Sending " + std::to_string(totalBytesToSend) + " bytes");
     uint32_t networkMessageID = htonl(Message.id);
     uint32_t networkPayloadSize = htonl(Message.payloadSize);
-    ssize_t numberOfBytes = ::send(socketID, reinterpret_cast<char*>(&networkMessageID), sizeof(networkMessageID), 0);
-    numberOfBytes += ::send(socketID, reinterpret_cast<char*>(&networkPayloadSize), sizeof(networkPayloadSize), 0);
-    numberOfBytes += ::send(socketID, Message.payload.data(), Message.payloadSize, 0);
 
-    if (numberOfBytes < 0) {
-        Logger::warning("Send failed");
-        throw Exception(ErrorCode::SendFailed, "Failed to send data", errno);
-    } else if (numberOfBytes != totalBytesToSend) {
-        Logger::warning("Partial send: " + std::to_string(numberOfBytes) + "/" + std::to_string(totalBytesToSend) + " bytes");
-        throw Exception(ErrorCode::PartialSend, "Sent partial data");
+    auto sendChunk = [&](const void* data, size_t size) {
+        const char* bufferPtr = static_cast<const char*>(data);
+
+        while (size > 0) {
+            ssize_t sentData = ::send(socketID, bufferPtr, size, MSG_NOSIGNAL);
+
+            if (sentData <= 0) {
+                throw Exception(ErrorCode::SendFailed, strerror(errno), errno);
+            }
+
+            bufferPtr += sentData;
+            size -= sentData;
+        }
+    };
+
+    sendChunk(&networkMessageID, sizeof(networkMessageID));
+    sendChunk(&networkPayloadSize, sizeof(networkPayloadSize));
+
+    if (!Message.payload.empty()) {
+        sendChunk(
+          Message.payload.data(),
+          Message.payload.size());
     }
-
-    Logger::debug("Successfully sent " + std::to_string(numberOfBytes) + " bytes");
 }
 
 ShiraNet::NetworkData::Buffer ShiraNet::Sockets::Socket::receive(int AmountOfBytesToRead, int Flags) {
